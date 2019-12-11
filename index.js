@@ -10,7 +10,7 @@ export class ItemManager {
       }
     ];
 
-    this.activeActionIndex = -1;
+    this.activeActionIndex = 0;
   }
 
   updateActiveActionIndex(index) {
