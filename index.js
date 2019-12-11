@@ -1,49 +1,38 @@
-import { tsThisType } from "@babel/types";
-
 export class ItemManager {
   constructor(backlogItemsList) {
     this.backlogItems = backlogItemsList;
     this.todaysList = [];
 
-    this.actions = [];
-    this.activeActionIndex = -1;
-  }
+    this.actions = [
+      {
+        backlogItems: backlogItemsList,
+        todaysList: []
+      }
+    ];
 
-  createActionObject(type, from, fromIndex, to, toIndex) {
-    return Object.assign({}, { type, from, fromIndex, to, toIndex });
+    this.activeActionIndex = -1;
   }
 
   updateActiveActionIndex(index) {
     this.activeActionIndex = index;
   }
 
-  addToActionLog(newAction) {
+  addToActionLog() {
+    const newAction = Object.assign(
+      {},
+      { backlogItems: this.backlogItems, todaysList: this.todaysList }
+    );
     this.actions = [...this.actions, newAction];
   }
 
   add(element) {
     if (!this.backlogItems.includes(element)) return;
 
-    // handle add between arrays
     const index = this.backlogItems.indexOf(element);
     const backlogItem = this.backlogItems[index];
-    this.todaysList = this.insertAtIndex(
-      this.todaysList,
-      backlogItem,
-      this.todaysList.length
-    );
+    this.todaysList = this.addToTodaysList(backlogItem);
     this.backlogItems = this.removeAtIndex(this.backlogItems, index);
-
-    // create actionObject
-    const actionObject = this.createActionObject(
-      "add",
-      this.backlogItems,
-      index,
-      this.todaysList,
-      this.todaysList.length - 1
-    );
-
-    this.addToActionLog(actionObject);
+    this.addToActionLog();
     this.updateActiveActionIndex(this.actions.length - 1);
   }
 
@@ -52,7 +41,7 @@ export class ItemManager {
   }
 
   addToTodaysList(element) {
-    this.todaysList = [...this.todaysList, element];
+    return [...this.todaysList, element];
   }
 
   removeAtIndex(list, index) {
@@ -60,13 +49,12 @@ export class ItemManager {
   }
 
   undo() {
-    const latestAction = this.actions[this.activeActionIndex];
-    if (!latestAction || latestAction.type !== "add") return;
+    const previousAction = this.actions[this.activeActionIndex - 1];
+    if (!previousAction) return;
 
-    const { from, fromIndex, to, toIndex } = latestAction;
-    const element = to[toIndex];
-    this.backlogItems = this.insertAtIndex(from, element, fromIndex);
-    this.todaysList = this.removeAtIndex(to, toIndex);
+    const { backlogItems, todaysList } = previousAction;
+    this.backlogItems = backlogItems;
+    this.todaysList = todaysList;
     this.activeActionIndex = this.activeActionIndex - 1;
   }
 
@@ -75,9 +63,9 @@ export class ItemManager {
     const newAction = this.actions[newActiveIndex];
     if (!newAction) return;
 
-    const { from, to } = newAction;
-    this.backlogItems = from;
-    this.todaysList = to;
+    const { backlogItems, todaysList } = newAction;
+    this.backlogItems = backlogItems;
+    this.todaysList = todaysList;
     this.activeActionIndex = newActiveIndex;
   }
 

@@ -15,6 +15,20 @@ describe("Take Home Test", () => {
       expect(todaysList[0]).toEqual("a");
       expect(updatedBackLog[0]).toEqual("b");
     });
+
+    it("doesnt add if it doesn't exist in the backlog", () => {
+      const backlog = ["a", "b"];
+      const manager = new ItemManager(backlog);
+
+      manager.add("z");
+      const todaysList = manager.getTodaysList();
+      const updatedBackLog = manager.getBacklogItemList();
+
+      expect(todaysList).toHaveLength(0);
+      expect(updatedBackLog).toHaveLength(2);
+      expect(updatedBackLog[0]).toEqual("a");
+      expect(updatedBackLog[1]).toEqual("b");
+    });
   });
 
   describe("undo", () => {
@@ -50,6 +64,21 @@ describe("Take Home Test", () => {
       expect(updatedBackLog[0]).toEqual("a");
       expect(updatedBackLog[1]).toEqual("b");
       expect(updatedBackLog[2]).toEqual("c");
+    });
+
+    it("doesnt change if no undos have been called", () => {
+      const initialBacklog = ["a", "b", "c"];
+      const manager = new ItemManager(initialBacklog);
+
+      manager.add("a");
+      manager.add("b");
+      manager.redo();
+
+      const todaysList = manager.getTodaysList();
+      const updatedBackLog = manager.getBacklogItemList();
+
+      expect(todaysList).toHaveLength(2);
+      expect(updatedBackLog).toHaveLength(1);
     });
   });
 
