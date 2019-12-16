@@ -94,7 +94,6 @@ describe("Take Home Test", () => {
 
       const todaysList = manager.getTodaysList();
       const updatedBacklog = manager.getBacklogItemList();
-      //   console.log("todaysList", todaysList, "updatedBacklog", updatedBacklog);
 
       expect(todaysList).toHaveLength(2);
       expect(updatedBacklog).toHaveLength(1);

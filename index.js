@@ -22,12 +22,13 @@ export class ItemManager {
       {},
       { backlogItems: this.backlogItems, todaysList: this.todaysList }
     );
+
     this.actions = [...this.actions, newAction];
   }
 
   add(element) {
     if (!this.backlogItems.includes(element)) return;
-
+    
     const index = this.backlogItems.indexOf(element);
     const backlogItem = this.backlogItems[index];
     this.todaysList = this.addToTodaysList(backlogItem);
@@ -48,30 +49,29 @@ export class ItemManager {
     return [...list.slice(0, index), ...list.slice(index + 1, list.length)];
   }
 
-  undo() {
-    const previousAction = this.actions[this.activeActionIndex - 1];
-    if (!previousAction) return;
+  traverseActionsArray(direction) {
+    const newActionIndex = this.activeActionIndex + direction;
+    const desiredAction = this.actions[newActionIndex];
+    if (!desiredAction) return;
 
-    const { backlogItems, todaysList } = previousAction;
+    const { backlogItems, todaysList } = desiredAction;
     this.backlogItems = backlogItems;
     this.todaysList = todaysList;
-    this.activeActionIndex = this.activeActionIndex - 1;
+    this.activeActionIndex = newActionIndex;
+  }
+
+  undo() {
+    this.traverseActionsArray(-1);
   }
 
   redo() {
-    const newActiveIndex = this.activeActionIndex + 1;
-    const newAction = this.actions[newActiveIndex];
-    if (!newAction) return;
-
-    const { backlogItems, todaysList } = newAction;
-    this.backlogItems = backlogItems;
-    this.todaysList = todaysList;
-    this.activeActionIndex = newActiveIndex;
+    this.traverseActionsArray(1);
   }
 
   getBacklogItemList() {
     return this.backlogItems;
   }
+
   getTodaysList() {
     return this.todaysList;
   }
